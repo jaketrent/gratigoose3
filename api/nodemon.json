@@ -1,0 +1,12 @@
+{
+  "watch": ["src"],
+  "env": {
+    "TS_NODE_FILES": true,
+    "TS_NODE_IGNORE": "false",
+    "TS_NODE_PROJECT": "./tsconfig.json"
+  },
+  "ext": "ts",
+  "ignore": ["src/**/*.spec.ts"],
+  "exec": "node -r ts-node/register ./src/main.ts"
+}
+
