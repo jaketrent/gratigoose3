@@ -9,6 +9,12 @@ export class Trans {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ name: 'trans_date' })
+  transDate: Date
+
+  @Column({ name: 'cleared_date' })
+  clearedDate: Date
+
   @Column()
   description: string | null;
 
@@ -28,4 +34,25 @@ export class Trans {
   @ManyToOne(type => Acct, acct => acct.transs)
   @JoinColumn({ name: 'acct_id' })
   acct: Acct
+
+  @Column({ name: 'check_num' })
+  checkNum: number
+
+  @Column()
+  location: string
+
+  @Column()
+  year: number
+
+  @Column()
+  month: number
+
+  @Column()
+  day: number
+
+  @Column()
+  created: Date
+
+  @Column()
+  updated: Date
 }

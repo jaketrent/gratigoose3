@@ -30,17 +30,32 @@ export const typeDefs = gql`
 
   type Trans {
     id: Int!
-    acct: Acct 
+    transDate: Date!
+    clearedDate: Date
+    description: String
     amt: Float! 
     cat: Cat!
-    description: String
+    acct: Acct!
+    checkNum: Int
+    location: String
+    year: Int!
+    month: Int!
+    day: Int!
+    created: Date
+    updated: Date
   }
 
   type Query {
+    acct(id: Int!): Acct
     accts: [Acct]
+    cat(id: Int!): Cat
     cats: [Cat]
     transs: [Trans]
     trans(id: Int!): Trans
+  }
+
+  type Mutation {
+    createTrans(transDate: Date!, amt: Int!, description: String, acctId: Int!, catId: Int!): Trans 
   }
 `
 
@@ -48,17 +63,23 @@ export const resolvers = {
   Date: new GraphQLScalarType({
     name: 'Date',
     description: 'Date custom scalar type',
-    parseValue(value) {
+    parseValue(value: string) {
       return new Date(value);
     },
-    serialize(value) {
-      return value.getTime();
+    serialize(value: Date) {
+      return value.getFullYear() + '-' + value.getMonth() + 1 + '-' + value.getDate()
+      /* return value.getTime(); */
     },
     parseLiteral(ast) {
-      if (ast.kind === Kind.INT) {
+      if (ast.kind === Kind.STRING) {
+        return ast.value
+      }
+      else if (ast.kind === Kind.INT) {
         return parseInt(ast.value, 10);
       }
-      return null;
+      return null
+      /* return ast.value */
+      /* return null; */
     },
   }),
   Trans: {
@@ -70,14 +91,32 @@ export const resolvers = {
     }
   },
   Query: {
+    acct: async (_parent, args) => 
+      acctService.findOne(args.id),
     accts: async () => 
       acctService.findAll(),
+    cat: async (_parent, args) => 
+      catService.findOne(args.id),
     cats: async () => 
       catService.findAll(),
     trans: async (_parent, args) => 
       transService.findOne(args.id),
     transs: async () => 
       transService.findAll()
+  },
+  Mutation: {
+    createTrans: async (_parent, args) => {
+      function parseYYMMDD(date: string) {
+        return date.split('-').map(s => parseInt(s, 10))
+      }
+      const [year, month, day] = parseYYMMDD(args.transDate)
+      args.year = year
+      args.month = month
+      args.day = day
+
+      const savedTrans = await transService.create(args)
+      return savedTrans
+    }
   }
 }
 
