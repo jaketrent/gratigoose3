@@ -1,15 +1,24 @@
 /* import { buildSchema } from 'graphql' */
 
+import { GraphQLScalarType } from 'graphql';
+import { Kind } from 'graphql/language';
 import { gql } from 'apollo-server-express'
 
+import * as catService from './cat/cat-service'
 import * as transService from './trans/trans-service'
 
 export const typeDefs = gql`
+  scalar Date
   type Acct {
     id: Int!
   }
   type Cat {
     id: Int!
+    abbrev: String!
+    name: String!
+    description: String
+    created: Date
+    updated: Date
   }
   type Trans {
     id: Int!
@@ -20,12 +29,32 @@ export const typeDefs = gql`
   }
 
   type Query {
+    acct: [Acct]
+    cat: [Cat]
     trans: [Trans]
   }
 `
 
 export const resolvers = {
+  Date: new GraphQLScalarType({
+    name: 'Date',
+    description: 'Date custom scalar type',
+    parseValue(value) {
+      return new Date(value);
+    },
+    serialize(value) {
+      return value.getTime();
+    },
+    parseLiteral(ast) {
+      if (ast.kind === Kind.INT) {
+        return parseInt(ast.value, 10);
+      }
+      return null;
+    },
+  }),
   Query: {
+    cat: async () => 
+      catService.findAll(),
     trans: async () => 
       transService.findAll()
   }
