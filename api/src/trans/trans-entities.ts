@@ -15,6 +15,9 @@ export class Trans {
   @Column()
   amt: number;
 
+  @Column({ name: 'cat_id' })
+  catId: number
+
   @ManyToOne(type => Cat, cat => cat.transs)
   @JoinColumn({ name: 'cat_id' })
   cat: Cat

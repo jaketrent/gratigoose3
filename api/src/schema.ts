@@ -1,5 +1,3 @@
-/* import { buildSchema } from 'graphql' */
-
 import { GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
 import { gql } from 'apollo-server-express'
@@ -10,6 +8,7 @@ import * as transService from './trans/trans-service'
 
 export const typeDefs = gql`
   scalar Date
+
   type Acct {
     id: Int!
     abbrev: String!
@@ -28,6 +27,7 @@ export const typeDefs = gql`
     updated: Date
     transs: [Trans!]!
   }
+
   type Trans {
     id: Int!
     acct: Acct 
@@ -61,6 +61,11 @@ export const resolvers = {
       return null;
     },
   }),
+  Trans: {
+    cat: (parent) => {
+      return catService.findOne(parent.catId)
+    }
+  },
   Query: {
     accts: async () => 
       acctService.findAll(),
