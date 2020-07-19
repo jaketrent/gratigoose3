@@ -3,8 +3,8 @@ import {OneToMany, Entity, Unique, PrimaryGeneratedColumn, Column} from "typeorm
 import { Trans } from '../trans/trans-entities'
 
 @Entity()
-@Unique('cat_abbrev_key', ['abbrev'])
-export class Cat {
+@Unique('acct_abbrev_key', ['abbrev'])
+export class Acct {
 
   @PrimaryGeneratedColumn()
   id: number;
@@ -16,14 +16,14 @@ export class Cat {
   name: string;
 
   @Column()
-  description: string | null;
-
-  @Column()
   created: Date;
 
   @Column()
   updated: Date;
 
-  @OneToMany(type => Trans, trans => trans.cat)
+  @Column({ default: true })
+  liquidable: boolean;
+
+  @OneToMany(type => Trans, trans => trans.acct)
   transs: Trans[]
 }

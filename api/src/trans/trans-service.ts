@@ -7,3 +7,9 @@ export async function findAll(): Promise<Trans[]> {
 
   return transs
 }
+
+export async function findOne(id: string): Promise<Trans> {
+  const trans = await getRepository(Trans).findOne(id)
+
+  return trans
+}
