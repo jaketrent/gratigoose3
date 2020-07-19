@@ -7,3 +7,9 @@ export async function findAll(): Promise<Acct[]> {
 
   return accts
 }
+
+export async function findOne(id: number): Promise<Acct> {
+  const acct = await getRepository(Acct).findOne(id)
+
+  return acct
+}

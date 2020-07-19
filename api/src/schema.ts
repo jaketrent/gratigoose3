@@ -62,6 +62,9 @@ export const resolvers = {
     },
   }),
   Trans: {
+    acct: (parent) => {
+      return acctService.findOne(parent.acctId)
+    },
     cat: (parent) => {
       return catService.findOne(parent.catId)
     }

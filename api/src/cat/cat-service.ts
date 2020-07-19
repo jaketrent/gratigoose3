@@ -8,7 +8,7 @@ export async function findAll(): Promise<Cat[]> {
   return cats
 }
 
-export async function findOne(id): Promise<Cat> {
+export async function findOne(id: number): Promise<Cat> {
   const cat = await getRepository(Cat).findOne(id)
 
   return cat
