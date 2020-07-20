@@ -17,7 +17,5 @@ export async function findOne(id: string): Promise<Trans> {
 export async function create(trans: Partial<Trans>): Promise<Trans> {
   const savedTrans = await getRepository(Trans).save(trans)
 
-  console.log('saved', savedTrans )
-
   return savedTrans
 }

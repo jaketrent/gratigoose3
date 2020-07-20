@@ -1,6 +1,7 @@
+import { gql } from 'apollo-server-express'
 import { GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
-import { gql } from 'apollo-server-express'
+import { GraphQLDate } from 'graphql-iso-date';
 
 import * as acctService from './acct/acct-service'
 import * as catService from './cat/cat-service'
@@ -56,32 +57,12 @@ export const typeDefs = gql`
 
   type Mutation {
     createTrans(transDate: Date!, amt: Int!, description: String, acctId: Int!, catId: Int!): Trans 
+    updateTrans(id: Int!, transDate: Date, amt: Int, description: String, acctId: Int, catId: Int): Trans 
   }
 `
 
 export const resolvers = {
-  Date: new GraphQLScalarType({
-    name: 'Date',
-    description: 'Date custom scalar type',
-    parseValue(value: string) {
-      return new Date(value);
-    },
-    serialize(value: Date) {
-      return value.getFullYear() + '-' + value.getMonth() + 1 + '-' + value.getDate()
-      /* return value.getTime(); */
-    },
-    parseLiteral(ast) {
-      if (ast.kind === Kind.STRING) {
-        return ast.value
-      }
-      else if (ast.kind === Kind.INT) {
-        return parseInt(ast.value, 10);
-      }
-      return null
-      /* return ast.value */
-      /* return null; */
-    },
-  }),
+  Date: GraphQLDate,
   Trans: {
     acct: (parent) => {
       return acctService.findOne(parent.acctId)
@@ -106,8 +87,9 @@ export const resolvers = {
   },
   Mutation: {
     createTrans: async (_parent, args) => {
-      function parseYYMMDD(date: string) {
-        return date.split('-').map(s => parseInt(s, 10))
+      function parseYYMMDD(date: Date) {
+        return [date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate()]
+        /* return date.split('-').map(s => parseInt(s, 10)) */
       }
       const [year, month, day] = parseYYMMDD(args.transDate)
       args.year = year
@@ -115,6 +97,23 @@ export const resolvers = {
       args.day = day
 
       const savedTrans = await transService.create(args)
+      return savedTrans
+    },
+    updateTrans: async (_parent, args) => {
+      function parseYYMMDD(date: Date) {
+        console.log('date', typeof date, date)
+        return [date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate()]
+        /* return date.split('-').map(s => parseInt(s, 10)) */
+      }
+      let dbTrans = await transService.findOne(args.id)
+      dbTrans = { ...dbTrans, ...args }
+      const [year, month, day] = parseYYMMDD(args.transDate)
+      console.log('y,m,d', year, month, day)
+      dbTrans.year = year
+      dbTrans.month = month
+      dbTrans.day = day
+
+      const savedTrans = await transService.create(dbTrans)
       return savedTrans
     }
   }
